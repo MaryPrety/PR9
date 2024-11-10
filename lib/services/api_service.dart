@@ -48,7 +48,7 @@ class ApiService {
   Future<MangaItem> createProduct(MangaItem item) async {
     try {
       final response = await _dio.post(
-        '$baseUrl/mangaItems',  // Используем базовый маршрут для создания
+        '$baseUrl/mangaItems/create',  // Исправленный путь для создания
         data: item.toJson(),
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
@@ -64,31 +64,49 @@ class ApiService {
 
   // Метод для обновления манга-товара через PUT
   Future<MangaItem> updateProduct(MangaItem item) async {
-    try {
-      final response = await _dio.put(
-        '$baseUrl/mangaItems/${item.id}',  // Обновленный путь для PUT запроса
-        data: item.toJson(),
-        options: Options(headers: {'Content-Type': 'application/json'}),
-      );
-      if (response.statusCode == 200) {
-        return MangaItem.fromJson(response.data);
-      } else {
-        throw Exception('Failed to update product: ${response.statusCode} - ${response.data}');
-      }
-    } catch (e) {
-      throw Exception('Error updating product: $e');
+  try {
+    final response = await _dio.put(
+      '$baseUrl/mangaItems/update/${item.id}',  // Путь для PUT запроса
+      data: item.toJson(),
+      options: Options(headers: {'Content-Type': 'application/json'}),
+    );
+    if (response.statusCode == 200) {
+      return MangaItem.fromJson(response.data);
+    } else {
+      throw Exception('Failed to update product: ${response.statusCode} - ${response.data}');
     }
+  } catch (e) {
+    throw Exception('Error updating product: $e');
   }
+}
 
   // Метод для удаления манга-товара
   Future<void> deleteProduct(int id) async {
     try {
-      final response = await _dio.delete('$baseUrl/mangaItems/$id');  // Путь для удаления продукта
+      final response = await _dio.delete('$baseUrl/mangaItems/delete/$id');  // Исправленный путь для удаления продукта
       if (response.statusCode != 204) {
         throw Exception('Failed to delete product: ${response.statusCode} - ${response.data}');
       }
     } catch (e) {
       throw Exception('Error deleting product: $e');
+    }
+  }
+
+  // Метод для частичного обновления манга-товара через PATCH
+  Future<MangaItem> patchProduct(int id, Map<String, dynamic> patchData) async {
+    try {
+      final response = await _dio.patch(
+        '$baseUrl/mangaItems/patch/$id',  // Исправленный путь для PATCH запроса
+        data: patchData,
+        options: Options(headers: {'Content-Type': 'application/json'}),
+      );
+      if (response.statusCode == 200) {
+        return MangaItem.fromJson(response.data);
+      } else {
+        throw Exception('Failed to patch product: ${response.statusCode} - ${response.data}');
+      }
+    } catch (e) {
+      throw Exception('Error patching product: $e');
     }
   }
 }
