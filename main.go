@@ -232,12 +232,14 @@ func deleteMangaItemHandler(w http.ResponseWriter, r *http.Request) {
 
 // обработчик для обновления манги по ID
 func updateMangaItemHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Received PUT request for update")
 	if r.Method != http.MethodPut {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
 	}
 
 	idStr := r.URL.Path[len("/mangaItems/update/"):]
+	fmt.Printf("ID from path: %s\n", idStr)
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		http.Error(w, "Invalid MangaItem ID", http.StatusBadRequest)
