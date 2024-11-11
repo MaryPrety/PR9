@@ -251,18 +251,40 @@ class _UploadNewVolumePageState extends State<UploadNewVolumePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Добавьте изображения", style: TextStyle(color: textColor)),
+        const Text(
+          "Первая картинка пойдет на обложку, остальные две как вспомогательные.",
+          style: TextStyle(color: textColor),
+        ),
         const SizedBox(height: 10),
         Row(
           children: [
             for (int i = 0; i < _imageLinks.length; i++) ...[
               Padding(
                 padding: const EdgeInsets.only(right: 8.0),
-                child: Image.network(
-                  _imageLinks[i],
-                  height: 50,
-                  width: 50,
-                  fit: BoxFit.cover,
+                child: Stack(
+                  children: [
+                    Image.network(
+                      _imageLinks[i],
+                      height: 50,
+                      width: 50,
+                      fit: BoxFit.cover,
+                    ),
+                    Positioned.fill(
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () {
+                            setState(() {
+                              _imageLinks.removeAt(i);
+                            });
+                          },
+                          child: const Center(
+                            child: Icon(Icons.close, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
