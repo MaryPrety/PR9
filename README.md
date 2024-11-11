@@ -43,16 +43,12 @@
 Проект предоставляет возможность более детально изучить разработку корпоративных приложений, а также закрепить практические навыки работы с кроссплатформенными технологиями и управлением пользовательским интерфейсом.
 
 ## Добавление, удаление и редактирование на фронтенде и бэкенде
+![{D90ED271-E246-4829-85BE-4902BEB0BBF5}](https://github.com/user-attachments/assets/341aaf1e-5c26-481f-bbe9-e31970b7f77e)
+![{D2209236-3504-4C44-9B44-546D9545470F}](https://github.com/user-attachments/assets/89840a4d-6fbf-4b7f-9b4e-f7bf8000faaa)
+![{ED012507-A371-484C-9F1F-4195099F30F7}](https://github.com/user-attachments/assets/a10882b1-b42e-402f-a443-6f97b54dc531)
+![{DD1C0A80-5694-456C-B487-A7F87354BD0D}](https://github.com/user-attachments/assets/15b7e8b8-dc9e-4117-b099-122d52ee22c4)
+![{1216FA70-3B0B-4899-A2D0-CE27D1A38DCD}](https://github.com/user-attachments/assets/c0209f3c-5d17-4681-a952-d0b4767041e3)
 
-![{6CB8E74D-9043-4ED4-B2E8-4600719969F9}](https://github.com/user-attachments/assets/f6ceb750-7122-4fca-9e36-50553017a172)
 
-![{5CBF13DE-A274-4C6F-B21E-0EC43B11149B}](https://github.com/user-attachments/assets/7e315fc7-5206-49e7-adb0-6d1899a50d5a)
 
-![{8B978F7D-651A-473D-966A-1329301C5A04}](https://github.com/user-attachments/assets/755b0ed9-fb94-466b-9810-2819a3e2db41)
-![image](https://github.com/user-attachments/assets/4a14cfab-a658-42b7-8ff2-5914af3c5fed)
-![{7998CF9A-187D-4ED0-BA7A-DBD9F314EAB3}](https://github.com/user-attachments/assets/496a3609-af45-43f8-9974-3ae587cbce10)
 
-**Пример изменения в Postman после удаления:**
-
-![{C9B0547F-7BA8-4EFE-923B-289B9343DFD4}](https://github.com/user-attachments/assets/7ca3a0f3-534e-460a-a157-61528ed28b5b)
-![{81256824-D78B-48AD-931F-DA9AC43EAB73}](https://github.com/user-attachments/assets/2c53fcdc-9d90-44b5-a29e-b4e6136d0fb4)
