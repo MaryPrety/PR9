@@ -3,7 +3,7 @@ import '../models/manga_item.dart';
 
 class ApiService {
   final Dio _dio = Dio();
-  static const String baseUrl = 'http://localhost:8080';
+  static const String baseUrl = 'http://localhost:8080'; // Ваш серверный URL
 
   // Метод для получения всех манга-товаров
   Future<List<MangaItem>> fetchProducts() async {
@@ -23,24 +23,24 @@ class ApiService {
     }
   }
 
-  // Метод для инициализации данных (обновление отсутствующих данных через PUT)
-  Future<void> initializeData() async {
-    List<MangaItem> items = await fetchProducts();
-    for (var item in items) {
-      if (item.format.isEmpty || item.publisher.isEmpty) {
-        MangaItem updatedItem = MangaItem(
-          id: item.id,
-          imagePath: item.imagePath,
-          title: item.title,
-          description: item.description,
-          price: item.price,
-          additionalImages: item.additionalImages,
-          format: item.format.isNotEmpty ? item.format : 'Не указан',
-          publisher: item.publisher.isNotEmpty ? item.publisher : 'Не указан',
-          chapters: item.chapters,
-        );
-        await updateProduct(updatedItem); // Обновление на сервере через PUT
+  // Метод для изменения статуса манга-товара через PUT
+  Future<void> changeProductStatus(MangaItem mangaItem) async {
+    print("changeProductStatus function called");
+    try {
+      final response = await _dio.put(
+        '$baseUrl/mangaItems/update/${mangaItem.id}',
+        data: mangaItem.toJson(),
+        options: Options(headers: {'Content-Type': 'application/json'}),
+      );
+
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        return;
+      } else {
+        throw Exception('Failed to change Product Status: ${response.statusCode} - ${response.data}');
       }
+    } catch (e) {
+      throw Exception('Error fetching change Product Status: $e');
     }
   }
 
@@ -48,11 +48,11 @@ class ApiService {
   Future<MangaItem> createProduct(MangaItem item) async {
     try {
       final response = await _dio.post(
-        '$baseUrl/mangaItems/create',  // Исправленный путь для создания
+        '$baseUrl/mangaItems/create', // Путь для создания
         data: item.toJson(),
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
-      if (response.statusCode == 200 || response.statusCode == 201) {
+      if (response.statusCode == 201) {
         return MangaItem.fromJson(response.data);
       } else {
         throw Exception('Failed to create product: ${response.statusCode} - ${response.data}');
@@ -62,51 +62,15 @@ class ApiService {
     }
   }
 
-  // Метод для обновления манга-товара через PUT
-  Future<MangaItem> updateProduct(MangaItem item) async {
-  try {
-    final response = await _dio.put(
-      '$baseUrl/mangaItems/update/${item.id}',  // Путь для PUT запроса
-      data: item.toJson(),
-      options: Options(headers: {'Content-Type': 'application/json'}),
-    );
-    if (response.statusCode == 200) {
-      return MangaItem.fromJson(response.data);
-    } else {
-      throw Exception('Failed to update product: ${response.statusCode} - ${response.data}');
-    }
-  } catch (e) {
-    throw Exception('Error updating product: $e');
-  }
-}
-
   // Метод для удаления манга-товара
   Future<void> deleteProduct(int id) async {
     try {
-      final response = await _dio.delete('$baseUrl/mangaItems/delete/$id');  // Исправленный путь для удаления продукта
+      final response = await _dio.delete('$baseUrl/mangaItems/delete/$id'); // Путь для удаления
       if (response.statusCode != 204) {
         throw Exception('Failed to delete product: ${response.statusCode} - ${response.data}');
       }
     } catch (e) {
       throw Exception('Error deleting product: $e');
-    }
-  }
-
-  // Метод для частичного обновления манга-товара через PATCH
-  Future<MangaItem> patchProduct(int id, Map<String, dynamic> patchData) async {
-    try {
-      final response = await _dio.patch(
-        '$baseUrl/mangaItems/patch/$id',  // Исправленный путь для PATCH запроса
-        data: patchData,
-        options: Options(headers: {'Content-Type': 'application/json'}),
-      );
-      if (response.statusCode == 200) {
-        return MangaItem.fromJson(response.data);
-      } else {
-        throw Exception('Failed to patch product: ${response.statusCode} - ${response.data}');
-      }
-    } catch (e) {
-      throw Exception('Error patching product: $e');
     }
   }
 }
