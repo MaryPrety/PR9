@@ -44,8 +44,10 @@
 
 ## Добавление, удаление и редактирование на фронтенде и бэкенде
 
-![{DB745C27-3B00-4DEC-AFA0-B08171DAEDED}](https://github.com/user-attachments/assets/e4947711-967d-46c8-bcf1-a129717bcdf3)
-![{4F917D88-EA8E-454F-815A-87CDCEF5A22F}](https://github.com/user-attachments/assets/920d0693-71a7-4232-bc82-da0323cb2972)
+![{6CB8E74D-9043-4ED4-B2E8-4600719969F9}](https://github.com/user-attachments/assets/f6ceb750-7122-4fca-9e36-50553017a172)
+
+![{5CBF13DE-A274-4C6F-B21E-0EC43B11149B}](https://github.com/user-attachments/assets/7e315fc7-5206-49e7-adb0-6d1899a50d5a)
+
 ![{8B978F7D-651A-473D-966A-1329301C5A04}](https://github.com/user-attachments/assets/755b0ed9-fb94-466b-9810-2819a3e2db41)
 ![image](https://github.com/user-attachments/assets/4a14cfab-a658-42b7-8ff2-5914af3c5fed)
 ![{7998CF9A-187D-4ED0-BA7A-DBD9F314EAB3}](https://github.com/user-attachments/assets/496a3609-af45-43f8-9974-3ae587cbce10)
