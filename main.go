@@ -2,12 +2,12 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
-// MangaItem представляет мангу
 type MangaItem struct {
 	ID               int      `json:"id"`
 	ImagePath        string   `json:"image_path"`
@@ -20,7 +20,6 @@ type MangaItem struct {
 	Chapters         string   `json:"chapters"`
 }
 
-// Пример списка манги
 var mangaItems = []MangaItem{
 	{
 		ID:               1,
@@ -120,219 +119,100 @@ var mangaItems = []MangaItem{
 	},
 }
 
-// CORS middleware
-func cors(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")                              // Разрешите доступ для всех источников
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH") // Разрешите методы
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")                  // Разрешите заголовки
-
-		if r.Method == http.MethodOptions {
-			return // Если это preflight запрос, просто возвращаем
-		}
-
-		next.ServeHTTP(w, r) // Передаем управление следующему обработчику
-	})
-}
-
-// обработчик для GET-запроса, возвращает список манги
-func getMangaItemsHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(mangaItems)
-}
-
-// обработчик для POST-запроса, добавляет мангу
-func createMangaItemHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-		return
-	}
-
-	var newMangaItem MangaItem
-	err := json.NewDecoder(r.Body).Decode(&newMangaItem)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	// Проверка на существование товара с таким же title
-	for _, mangaItem := range mangaItems {
-		if mangaItem.Title == newMangaItem.Title {
-			http.Error(w, "MangaItem with the same title already exists", http.StatusConflict)
-			return
-		}
-	}
-
-	// Генерация уникального ID
-	lastID := 0
-	for _, mangaItem := range mangaItems {
-		if mangaItem.ID > lastID {
-			lastID = mangaItem.ID
-		}
-	}
-	newMangaItem.ID = lastID + 1
-	mangaItems = append(mangaItems, newMangaItem)
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(newMangaItem)
-	fmt.Printf("Created new MangaItem: %+v\n", newMangaItem)
-}
-
-// обработчик для получения одной манги по ID
-func getMangaItemByIDHandler(w http.ResponseWriter, r *http.Request) {
-	idStr := r.URL.Path[len("/mangaItems/"):]
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		http.Error(w, "Invalid MangaItem ID", http.StatusBadRequest)
-		return
-	}
-
-	for _, mangaItem := range mangaItems {
-		if mangaItem.ID == id {
-			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(mangaItem)
-			return
-		}
-	}
-
-	http.Error(w, "MangaItem not found", http.StatusNotFound)
-}
-
-// обработчик для удаления манги по ID
-func deleteMangaItemHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodDelete {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-		return
-	}
-
-	idStr := r.URL.Path[len("/mangaItems/delete/"):]
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		http.Error(w, "Invalid MangaItem ID", http.StatusBadRequest)
-		return
-	}
-
-	indexToRemove := -1
-	for i, mangaItem := range mangaItems {
-		if mangaItem.ID == id {
-			indexToRemove = i
-			break
-		}
-	}
-
-	if indexToRemove == -1 {
-		http.Error(w, "MangaItem not found", http.StatusNotFound)
-		return
-	}
-
-	mangaItems = append(mangaItems[:indexToRemove], mangaItems[indexToRemove+1:]...)
-	w.WriteHeader(http.StatusNoContent)
-	fmt.Printf("Deleted MangaItem with ID: %d\n", id)
-}
-
-// обработчик для обновления манги по ID
-func updateMangaItemHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Received PUT request for update")
-	if r.Method != http.MethodPut {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-		return
-	}
-
-	idStr := r.URL.Path[len("/mangaItems/update/"):]
-	fmt.Printf("ID from path: %s\n", idStr)
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		http.Error(w, "Invalid MangaItem ID", http.StatusBadRequest)
-		return
-	}
-
-	var updatedMangaItem MangaItem
-	err = json.NewDecoder(r.Body).Decode(&updatedMangaItem)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	for i, mangaItem := range mangaItems {
-		if mangaItem.ID == id {
-			updatedMangaItem.ID = id // сохранить текущий ID
-			mangaItems[i] = updatedMangaItem
-			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(mangaItems[i])
-			fmt.Printf("Updated MangaItem with ID: %d\n", id)
-			return
-		}
-	}
-
-	http.Error(w, "MangaItem not found", http.StatusNotFound)
-}
-
-// обработчик для частичного обновления манги по ID
-func patchMangaItemHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPatch {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-		return
-	}
-
-	idStr := r.URL.Path[len("/mangaItems/patch/"):]
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		http.Error(w, "Invalid MangaItem ID", http.StatusBadRequest)
-		return
-	}
-
-	var patchData map[string]interface{}
-	err = json.NewDecoder(r.Body).Decode(&patchData)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	for i, mangaItem := range mangaItems {
-		if mangaItem.ID == id {
-			if title, ok := patchData["title"].(string); ok {
-				mangaItems[i].Title = title
-			}
-			if description, ok := patchData["description"].(string); ok {
-				mangaItems[i].Description = description
-			}
-			if price, ok := patchData["price"].(string); ok {
-				mangaItems[i].Price = price
-			}
-			if format, ok := patchData["format"].(string); ok {
-				mangaItems[i].Format = format
-			}
-			if publisher, ok := patchData["publisher"].(string); ok {
-				mangaItems[i].Publisher = publisher
-			}
-			if chapters, ok := patchData["chapters"].(string); ok {
-				mangaItems[i].Chapters = chapters
-			}
-			if additionalImages, ok := patchData["additional_images"].([]interface{}); ok {
-				mangaItems[i].AdditionalImages = make([]string, len(additionalImages))
-				for j, img := range additionalImages {
-					mangaItems[i].AdditionalImages[j] = img.(string)
-				}
-			}
-
-			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(mangaItems[i])
-			fmt.Printf("Patched MangaItem with ID: %d\n", id)
-			return
-		}
-	}
-
-	http.Error(w, "MangaItem not found", http.StatusNotFound)
-}
-
 func main() {
-	http.HandleFunc("/mangaItems", getMangaItemsHandler)
-	http.HandleFunc("/mangaItems/create", createMangaItemHandler)
-	http.HandleFunc("/mangaItems/", getMangaItemByIDHandler)
-	http.HandleFunc("/mangaItems/update/", updateMangaItemHandler)
-	http.HandleFunc("/mangaItems/delete/", deleteMangaItemHandler)
-	http.HandleFunc("/mangaItems/patch/", patchMangaItemHandler)
+	http.HandleFunc("/mangaItems", handleMangaItems)
+	http.HandleFunc("/mangaItems/create", handleCreateMangaItem)
+	http.HandleFunc("/mangaItems/update/", handleUpdateMangaItem)
+	http.HandleFunc("/mangaItems/delete/", handleDeleteMangaItem)
 
-	fmt.Println("Server is running on port 8080!")
-	http.ListenAndServe(":8080", cors(http.DefaultServeMux)) // Оберните маршрутизатор в CORS middleware
+	log.Fatal(http.ListenAndServe(":8080", nil))
+}
+
+func handleMangaItems(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(mangaItems)
+	default:
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
+}
+
+func handleCreateMangaItem(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "POST":
+		var newItem MangaItem
+		if err := json.NewDecoder(r.Body).Decode(&newItem); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		mangaItems = append(mangaItems, newItem)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode(newItem)
+	default:
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
+}
+
+func handleUpdateMangaItem(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "PUT":
+		parts := strings.Split(r.URL.Path, "/")
+		if len(parts) != 4 {
+			http.Error(w, "Invalid URL", http.StatusBadRequest)
+			return
+		}
+		id, err := strconv.Atoi(parts[3])
+		if err != nil {
+			http.Error(w, "Invalid ID", http.StatusBadRequest)
+			return
+		}
+
+		var updatedItem MangaItem
+		if err := json.NewDecoder(r.Body).Decode(&updatedItem); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		for i, item := range mangaItems {
+			if item.ID == id {
+				mangaItems[i] = updatedItem
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusOK)
+				json.NewEncoder(w).Encode(updatedItem)
+				return
+			}
+		}
+		http.Error(w, "Manga item not found", http.StatusNotFound)
+	default:
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
+}
+
+func handleDeleteMangaItem(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "DELETE":
+		parts := strings.Split(r.URL.Path, "/")
+		if len(parts) != 4 {
+			http.Error(w, "Invalid URL", http.StatusBadRequest)
+			return
+		}
+		id, err := strconv.Atoi(parts[3])
+		if err != nil {
+			http.Error(w, "Invalid ID", http.StatusBadRequest)
+			return
+		}
+
+		for i, item := range mangaItems {
+			if item.ID == id {
+				mangaItems = append(mangaItems[:i], mangaItems[i+1:]...)
+				w.WriteHeader(http.StatusNoContent)
+				return
+			}
+		}
+		http.Error(w, "Manga item not found", http.StatusNotFound)
+	default:
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
 }
